@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SÓCRATES - Agente Educacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Header */
+        header {
+            background: rgba(26, 26, 46, 0.95);
+            border-bottom: 2px solid #d4a574;
+            padding: 24px 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            color: #d4a574;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+        .tagline {
+            font-size: 13px;
+            color: #b8956f;
+            font-style: italic;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 20px;
+            min-height: 0;
+            overflow: hidden;
+        }
+        /* Messages */
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        .messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .messages::-webkit-scrollbar-thumb {
+            background: #d4a574;
+            border-radius: 4px;
+        }
+        .messages::-webkit-scrollbar-thumb:hover {
+            background: #e0b588;
+        }
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .message.user {
+            justify-content: flex-end;
+        }
+        .message.model {
+            justify-content: flex-start;
+        }
+        .bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+        .message.user .bubble {
+            background: #d4a574;
+            color: #1a1a2e;
+            font-weight: 500;
+        }
+        .message.model .bubble {
+            background: rgba(212, 165, 116, 0.15);
+            color: #e0e0e0;
+            border: 1px solid rgba(212, 165, 116, 0.3);
+        }
+        /* Markdown rendering */
+        .bubble strong {
+            color: #d4a574;
+            font-weight: 600;
+        }
+        .message.user .bubble strong {
+            color: inherit;
+            font-weight: 600;
+        }
+        .bubble em {
+            font-style: italic;
+        }
+        .bubble ul, .bubble ol {
+            margin-left: 20px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+        .bubble li {
+            margin-bottom: 6px;
+        }
+        /* Typing animation */
+        .typing {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .typing span {
+            width: 8px;
+            height: 8px;
+            background: #d4a574;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        .typing span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typing {
+            0%, 60%, 100% {
+                opacity: 0.3;
+                transform: translateY(0);
+            }
+            30% {
+                opacity: 1;
+                transform: translateY(-10px);
+            }
+        }
+        /* Input Area */
+        .input-area {
+            border-top: 2px solid #d4a574;
+            background: rgba(26, 26, 46, 0.95);
+            padding: 16px 20px 24px;
+            backdrop-filter: blur(10px);
+        }
+        .input-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        .input-field-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: rgba(212, 165, 116, 0.1);
+            border: 1px solid #d4a574;
+            border-radius: 8px;
+            padding: 0 12px;
+            transition: all 0.3s ease;
+        }
+        .input-field-container:focus-within {
+            background: rgba(212, 165, 116, 0.15);
+            border-color: #e0b588;
+            box-shadow: 0 0 12px rgba(212, 165, 116, 0.2);
+        }
+        textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            padding: 10px 0;
+            resize: none;
+            max-height: 100px;
+            outline: none;
+        }
+        textarea::placeholder {
+            color: #888;
+        }
+        .send-btn {
+            background: #d4a574;
+            color: #1a1a2e;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .send-btn:hover:not(:disabled) {
+            background: #e0b588;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+        }
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .send-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        /* Footer */
+        footer {
+            background: rgba(26, 26, 46, 0.95);
+            border-top: 1px solid rgba(212, 165, 116, 0.2);
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+        footer a {
+            color: #d4a574;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        footer a:hover {
+            color: #e0b588;
+        }
+        /* Error message */
+        .error-message {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #ff9999;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 24px;
+            }
+            .bubble {
+                max-width: 85%;
+            }
+            header {
+                padding: 16px 16px;
+            }
+            .chat-container {
+                padding: 0 12px;
+            }
+            .messages {
+                padding: 12px 0;
+                gap: 12px;
+            }
+            .input-area {
+                padding: 12px 16px 16px;
+            }
+            .input-wrapper {
+                flex-wrap: wrap;
+            }
+            .send-btn {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+        }
+        /* Welcome state */
+        .welcome-message {
+            text-align: center;
+            color: #b8956f;
+            padding: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">SÓCRATES</div>
+            <div class="tagline">A IA que se recusa a pensar por você</div>
+        </div>
+    </header>
+    <div class="chat-container">
+        <div class="messages" id="messages"></div>
+    </div>
+    <div class="input-area">
+        <div class="input-wrapper">
+            <div class="input-field-container">
+                <textarea
+                    id="input"
+                    placeholder="Digite sua pergunta ou responda..."
+                    rows="1"
+                ></textarea>
+            </div>
+            <button class="send-btn" id="sendBtn">Enviar</button>
+        </div>
+    </div>
+    <footer>
+        Projeto A.L.M.A. | CC BY-NC-SA 4.0 |
+        <a href="https://github.com/JCharlinM/SOCRATES" target="_blank">github.com/JCharlinM/SOCRATES</a>
+    </footer>
+    <script>
+        const API_URL = 'https://socrates-api.charlineasternpact.workers.dev/chat';
+        const messagesContainer = document.getElementById('messages');
+        const input = document.getElementById('input');
+        const sendBtn = document.getElementById('sendBtn');
+        let conversationHistory = [];
+        let isLoading = false;
+        // Auto-resize textarea
+        input.addEventListener('input', () => {
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+        });
+        // Send message on Enter (Shift+Enter for newline)
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        sendBtn.addEventListener('click', sendMessage);
+        function showWelcomeMessage() {
+            const welcomeText = "Olá! Sou o SÓCRATES, seu parceiro de estudos.\nMe conta: você é estudante ou professor(a)?";
+            addMessage(welcomeText, 'model');
+        }
+        function addMessage(text, role) {
+            const message = document.createElement('div');
+            message.className = `message ${role}`;
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            if (role === 'model') {
+                bubble.innerHTML = markdownToHtml(text);
+            } else {
+                bubble.textContent = text;
+            }
+            message.appendChild(bubble);
+            messagesContainer.appendChild(message);
+            scrollToBottom();
+        }
+        function addLoadingMessage() {
+            const message = document.createElement('div');
+            message.className = 'message model';
+            message.id = 'loading-message';
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            const typing = document.createElement('div');
+            typing.className = 'typing';
+            typing.innerHTML = '<span></span><span></span><span></span>';
+            bubble.appendChild(typing);
+            message.appendChild(bubble);
+            messagesContainer.appendChild(message);
+            scrollToBottom();
+        }
+        function removeLoadingMessage() {
+            const loadingMessage = document.getElementById('loading-message');
+            if (loadingMessage) {
+                loadingMessage.remove();
+            }
+        }
+        function scrollToBottom() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        function markdownToHtml(text) {
+            let html = text;
+            // Preserve line breaks
+            html = html.replace(/\n/g, '<br>');
+            // Bold
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+            // Italic
+            html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+            // Lists
+            html = html.replace(/^\* (.*?)$/gm, '<li>$1</li>');
+            html = html.replace(/^\- (.*?)$/gm, '<li>$1</li>');
+            html = html.replace(/^\d+\. (.*?)$/gm, '<li>$1</li>');
+            // Wrap consecutive list items
+            html = html.replace(/(<li>.*?<\/li>(\<br\>)?)+/g, (match) => {
+                return '<ul>' + match + '</ul>';
+            });
+            return html;
+        }
+        async function sendMessage() {
+            const text = input.value.trim();
+            if (!text) return;
+            if (isLoading) return;
+            // Add user message to UI
+            addMessage(text, 'user');
+            // Add to history
+            conversationHistory.push({
+                role: 'user',
+                text: text
+            });
+            // Clear input and reset height
+            input.value = '';
+            input.style.height = 'auto';
+            // Disable send button and show loading
+            isLoading = true;
+            sendBtn.disabled = true;
+            addLoadingMessage();
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        messages: conversationHistory
+                    })
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const data = await response.json();
+                const modelResponse = data.response;
+                // Add to history
+                conversationHistory.push({
+                    role: 'model',
+                    text: modelResponse
+                });
+                // Remove loading message and add response
+                removeLoadingMessage();
+                addMessage(modelResponse, 'model');
+            } catch (error) {
+                removeLoadingMessage();
+                const errorMsg = `Desculpe, ocorreu um erro ao conectar com o servidor. Por favor, tente novamente. (${error.message})`;
+                addMessage(errorMsg, 'model');
+                console.error('Error:', error);
+            } finally {
+                isLoading = false;
+                sendBtn.disabled = false;
+                input.focus();
+            }
+        }
+        // Initialize
+        showWelcomeMessage();
+        input.focus();
+    </script>
+</body>
+</html>
